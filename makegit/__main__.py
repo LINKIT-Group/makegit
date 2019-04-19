@@ -41,9 +41,10 @@ def main():
     build_directory = args.build_directory[0]
     buildrepo_linkname = build_directory + '/' + args.buildrepo_linkname[0]
 
+    print('Retrieving: \"' + args.url[0] + '\" into build/buildrepo')
     repository = MakeGit(giturl=args.url[0],
                          build_directory=build_directory,
-                         verbose=True)
+                         verbose=False)
     repository.make_buildrepo()
 
     if os.path.islink(buildrepo_linkname) is True:
@@ -53,7 +54,7 @@ def main():
         print('File exist, cant create symlink: ' + buildrepo_linkname)
         sys.exit(1)
     os.symlink(repository.reponame, buildrepo_linkname)
-
+    print('Repository: \"' + args.url[0] + '\" ready in build/buildrepo')
     return 0
 
 

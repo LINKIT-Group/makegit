@@ -54,7 +54,8 @@ class MakeGit():
         if allow_fail is True:
             return self
 
-        if stderr:
+        if self.verbose is True and stderr:
+            warnings.warn('command failed:' + ' '.join(command))
             warnings.warn('\n'.join(stderr))
         if return_code != 0:
             raise ResponseError('git failed with return_code ' + str(return_code))
@@ -110,6 +111,8 @@ class MakeGit():
         # ensure all changes are committed to repository
         self.git_commit()
 
+        print('Fetching modules: ' + str(remotes))
+
         # fetch modules
         self.git_command(['git', 'fetch', '--multiple'] + submodules,
                          self.pathname)
@@ -117,7 +120,6 @@ class MakeGit():
         for module_b64name in submodules:
             b64part = re.sub('^__submodule__', '', module_b64name)
             module_name = base64.standard_b64decode(b64part).decode()
-
             module_vars = gitconfig.section_dict(config,
                                                  'submodule',
                                                  module_name)
@@ -142,6 +144,7 @@ class MakeGit():
                 module_branch = 'master'
 
             # activate module path
+            print('loading module \"' + module_name + '\" into \"' + module_path + '\"')
             self.git_command(['git', 'read-tree', '--prefix=' + module_path,
                               '-u', module_b64name + '/' + module_branch],
                              self.pathname)
